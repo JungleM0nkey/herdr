@@ -17,6 +17,13 @@ Herdr 为需要检查或控制运行中会话的脚本和智能体提供了一�
 
 这些层共享同一套控制面。
 
+仅支持 JSON 的 `plugin.pane.state.v1` 和 `plugin.pane.set_state.v1` 会验证
+当前目标 ID、安装指纹、本地所有权 nonce 和带有效期的不可变操作 ID，
+再控制插件窗格。使用前请检查 `ping.capabilities.conditional_plugin_pane_v1`；
+不能回退到旧的插件窗格方法。恢复或解除链接的窗格来源不明，需要新建本地标签页。
+回执只保留到服务器重启，派发后的错误在原生客户端核实前仍属于不确定状态。
+完整协议见 `docs/next/api/conditional-plugin-state.md`。
+
 ## Schema
 
 安装的 CLI 可以打印该 Herdr 二进制中包含的 socket 协议 schema:

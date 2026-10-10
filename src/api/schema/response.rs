@@ -267,6 +267,9 @@ pub enum ResponseResult {
     PluginPaneClosed {
         pane_id: String,
     },
+    ConditionalPluginState {
+        state: super::conditional_plugins::ConditionalPluginState,
+    },
     ConfigReload {
         status: crate::config::ConfigReloadStatus,
         diagnostics: Vec<String>,

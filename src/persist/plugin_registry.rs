@@ -8,6 +8,38 @@ use crate::api::schema::InstalledPluginInfo;
 pub const MANIFEST_UNAVAILABLE_WARNING_PREFIX: &str = "manifest unavailable: ";
 const REGISTRY_LOCK_FILE: &str = ".plugins.lock";
 
+/// Separate from the registry lock: installers keep this across their server RPC.
+pub(crate) fn installation_guard(
+    plugin_id: &str,
+    exclusive: bool,
+) -> std::io::Result<std::fs::File> {
+    let path = crate::config::config_dir()
+        .join("plugin-install-locks")
+        .join(format!(
+            "{}.lock",
+            crate::api::schema::plugin_managed_path_component(plugin_id)
+        ));
+    installation_guard_at(&path, exclusive)
+}
+
+fn installation_guard_at(path: &Path, exclusive: bool) -> std::io::Result<std::fs::File> {
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    let file = OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .read(true)
+        .write(true)
+        .open(path)?;
+    if exclusive {
+        file.lock()?;
+    } else {
+        file.try_lock_shared().map_err(std::io::Error::from)?;
+    }
+    Ok(file)
+}
+
 fn registry_path() -> PathBuf {
     crate::config::config_dir().join("plugins.json")
 }
@@ -160,6 +192,20 @@ pub fn reload_manifests(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn conditional_plugin_install_guard_is_nonblocking_and_separate_from_registry() {
+        let root = temp_registry_path("installation-guard");
+        let path = root.with_file_name("installation.lock");
+        let exclusive = installation_guard_at(&path, true).unwrap();
+        assert!(installation_guard_at(&path, false).is_err());
+        drop(exclusive);
+        let first = installation_guard_at(&path, false).unwrap();
+        let second = installation_guard_at(&path, false).unwrap();
+        drop((first, second));
+        std::fs::remove_file(path).unwrap();
+        std::fs::remove_dir(root.parent().unwrap()).unwrap();
+    }
 
     fn temp_registry_path(name: &str) -> PathBuf {
         let nanos = std::time::SystemTime::now()

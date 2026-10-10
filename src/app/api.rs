@@ -1222,6 +1222,12 @@ impl App {
             Method::PluginPaneClose(params) => {
                 return self.handle_plugin_pane_close(request.id, params);
             }
+            Method::ConditionalPluginState(params) => {
+                return self.handle_conditional_plugin_state(request.id, params);
+            }
+            Method::ConditionalPluginSetState(params) => {
+                return self.handle_conditional_plugin_set_state(request.id, params);
+            }
             _ => {
                 return responses::encode_error(
                     request.id,

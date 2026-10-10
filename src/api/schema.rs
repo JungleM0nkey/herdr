@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 pub mod agents;
 pub mod commands;
 pub mod common;
+pub mod conditional_plugins;
 pub mod events;
 pub mod integrations;
 pub mod panes;
@@ -17,6 +18,7 @@ pub mod worktrees;
 pub use agents::*;
 pub use commands::*;
 pub use common::*;
+pub use conditional_plugins::*;
 pub use events::*;
 pub use integrations::*;
 pub use panes::*;
@@ -249,6 +251,10 @@ pub enum Method {
     PluginPaneFocus(PluginPaneFocusParams),
     #[serde(rename = "plugin.pane.close")]
     PluginPaneClose(PluginPaneCloseParams),
+    #[serde(rename = "plugin.pane.state.v1")]
+    ConditionalPluginState(ConditionalPluginStateParams),
+    #[serde(rename = "plugin.pane.set_state.v1")]
+    ConditionalPluginSetState(ConditionalPluginSetStateParams),
 }
 
 #[cfg(test)]

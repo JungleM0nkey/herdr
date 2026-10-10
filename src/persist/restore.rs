@@ -522,7 +522,9 @@ fn restore_tab(
                 "Saved directory is unavailable. Restore the directory and restart this session."
                     .into(),
             );
-            panes.insert(*id, PaneState::new(terminal.id.clone()));
+            let mut pane = PaneState::new(terminal.id.clone());
+            pane.plugin_provenance_unknown = true;
+            panes.insert(*id, pane);
             terminals.push(terminal);
             continue;
         }
@@ -615,7 +617,9 @@ fn restore_tab(
                     std::time::Instant::now(),
                 );
             }
-            panes.insert(*id, PaneState::new(terminal_id));
+            let mut pane = PaneState::new(terminal_id);
+            pane.plugin_provenance_unknown = true;
+            panes.insert(*id, pane);
             terminals.push(terminal);
             continue;
         }
@@ -721,7 +725,9 @@ fn restore_tab(
                 if let Some(agent_state) = handoff_agent_state {
                     terminal.restore_handoff_agent_state(agent_state);
                 }
-                panes.insert(*id, PaneState::new(terminal_id.clone()));
+                let mut pane = PaneState::new(terminal_id.clone());
+                pane.plugin_provenance_unknown = true;
+                panes.insert(*id, pane);
                 terminal_runtimes.insert(terminal_id, runtime);
                 terminals.push(terminal);
             }
@@ -749,7 +755,9 @@ fn restore_tab(
                         saved_pane, cwd,
                         format!("Could not start the saved shell: {e}. Fix the shell configuration and restart this session."),
                     );
-                    panes.insert(*id, PaneState::new(terminal.id.clone()));
+                    let mut pane = PaneState::new(terminal.id.clone());
+                    pane.plugin_provenance_unknown = true;
+                    panes.insert(*id, pane);
                     terminals.push(terminal);
                 }
             }

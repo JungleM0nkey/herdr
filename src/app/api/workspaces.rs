@@ -649,6 +649,7 @@ mod tests {
                 pane_id,
                 crate::app::state::PluginPaneRecord {
                     plugin_id: "example.pane".into(),
+                    ownership: None,
                     entrypoint: "board".into(),
                 },
             );

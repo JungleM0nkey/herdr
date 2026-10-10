@@ -158,6 +158,8 @@ pub struct App {
     pub(crate) config_reloaded_from_disk: bool,
     client_shell_keybindings_profile: Option<String>,
     endpoint_commands: custom_commands::EndpointCommandRegistry,
+    pub(crate) conditional_plugin_operations:
+        api::plugins::conditional::ConditionalPluginOperations,
 }
 
 pub(crate) const APP_EVENT_CHANNEL_CAPACITY: usize = 256;
@@ -566,6 +568,7 @@ impl App {
             custom_commands::EndpointCommandRegistry::new(&state.keybinds.custom_commands);
 
         let mut app = Self {
+            conditional_plugin_operations: Default::default(),
             config_diagnostic_deadline: None,
             toast_deadline: None,
             last_api_notification_at: None,

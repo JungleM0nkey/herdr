@@ -792,6 +792,7 @@ dependencies = [
  "ctrlc",
  "futures-util",
  "ghostty-vt",
+ "getrandom 0.4.2",
  "interprocess",
  "jsonc-parser",
  "libc",

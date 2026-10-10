@@ -35,6 +35,8 @@ const CLIENT_SHELL_METHODS: &[&str] = &[
     "pane.split",
     "pane.swap",
     "pane.zoom",
+    "plugin.pane.set_state.v1",
+    "plugin.pane.state.v1",
     "product_announcement.dismiss",
     "release_notes.dismiss",
     "server.reload_config",
@@ -296,6 +298,14 @@ mod tests {
         assert_eq!(
             actual.remove("pane.link.resolve").as_deref(),
             Some("f5e4a3e01453ae7b188f127ce951c12c20e0bebcc17cc364eeb6d1a01fd5bf81")
+        );
+        assert_eq!(
+            actual.remove("plugin.pane.state.v1").as_deref(),
+            Some("37155963167389f72f52c2bee5cc9e0737645829f4f903c32d4aa5daf73e328f")
+        );
+        assert_eq!(
+            actual.remove("plugin.pane.set_state.v1").as_deref(),
+            Some("d0f09995e952578c7c708618ecd901d9f7de70da05064d0b5705409358639483")
         );
 
         assert_eq!(

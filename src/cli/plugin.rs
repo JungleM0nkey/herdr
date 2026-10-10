@@ -236,6 +236,12 @@ fn plugin_install(args: &[String]) -> std::io::Result<i32> {
         ensure_manifest_unchanged_after_build(&preview_plugin, &post_build_plugin)?;
 
         let final_checkout = crate::plugin_paths::managed_checkout_path(&preview_plugin.plugin_id);
+        let _installation_guard =
+            crate::persist::plugin_registry::installation_guard(&preview_plugin.plugin_id, true)?;
+        ensure_replacement_allowed(
+            &preview_plugin,
+            installed_plugin_info(&preview_plugin.plugin_id)?.as_ref(),
+        )?;
         let backup_checkout = temp_root.join("previous-checkout");
         let mut backup_moved = false;
         if final_checkout.exists() {
@@ -291,25 +297,33 @@ fn plugin_uninstall(args: &[String]) -> std::io::Result<i32> {
         return Ok(2);
     }
 
-    let (plugin_id, existing) = match GithubPluginSource::parse(target) {
-        Ok(source) => {
-            let existing = installed_plugin_by_github_source(&source)?;
+    let source_selector = GithubPluginSource::parse(target).ok();
+    let plugin_id = match source_selector.as_ref() {
+        Some(source) => {
+            let existing = installed_plugin_by_github_source(source)?;
             let Some(existing) = existing else {
                 eprintln!("plugin not installed: {}", source.display());
                 return Ok(1);
             };
-            (existing.plugin_id.clone(), Some(existing))
+            existing.plugin_id
         }
-        Err(_) => {
-            let existing = match live_installed_plugin_info(target) {
-                Ok(plugin) => plugin,
-                Err(err) if is_connection_error(&err) => registry_plugin_info(target),
-                Err(err) => return Err(err),
-            };
-            (target.clone(), existing)
-        }
+        None => target.clone(),
     };
 
+    let _installation_guard =
+        crate::persist::plugin_registry::installation_guard(&plugin_id, true)?;
+    let Some(existing) = installed_plugin_info(&plugin_id)? else {
+        eprintln!("plugin not installed: {target}");
+        return Ok(1);
+    };
+    if source_selector
+        .as_ref()
+        .is_some_and(|source| !plugin_matches_github_source(&existing, source))
+    {
+        return Err(io::Error::other(
+            "plugin source changed while waiting for the installation lock; retry with the current source",
+        ));
+    }
     match super::send_request(&Request {
         id: "cli:plugin".into(),
         method: Method::PluginUnlink(PluginUnlinkParams {
@@ -339,9 +353,7 @@ fn plugin_uninstall(args: &[String]) -> std::io::Result<i32> {
         Err(err) => return Err(err),
     }
 
-    if let Some(plugin) = existing.as_ref() {
-        remove_managed_plugin_files(plugin)?;
-    }
+    remove_managed_plugin_files(&existing)?;
     println!("Uninstalled {plugin_id}.");
     Ok(0)
 }
@@ -1880,6 +1892,12 @@ mod tests {
 
         let plugin = plugin_by_github_source(plugins, &source).unwrap();
         assert_eq!(plugin.plugin_id, "examples.agent-telegram-notify");
+        let mut replacement = plugin;
+        replacement.source.owner = Some("different-owner".into());
+        assert!(
+            !plugin_matches_github_source(&replacement, &source),
+            "a replacement with the same plugin id must not satisfy the stale uninstall source"
+        );
     }
 
     #[test]

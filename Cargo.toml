@@ -26,6 +26,8 @@ default-members = [".", "crates/ghostty-vt"]
 
 [dependencies]
 ghostty-vt = { path = "crates/ghostty-vt" }
+# OS randomness fences conditional operations across server restarts and handoffs.
+getrandom = "0.4"
 base64 = "0.22.1"
 bincode = { version = "2", features = ["serde"] }
 bytes = "1"

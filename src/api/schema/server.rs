@@ -21,6 +21,9 @@ pub struct ServerSshAgentRegisterParams {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, schemars::JsonSchema)]
 pub struct ServerCapabilities {
+    /// Supports JSON-only conditional plugin pane state and mutations.
+    #[serde(default, skip_serializing_if = "super::is_false")]
+    pub conditional_plugin_pane_v1: bool,
     pub live_handoff: bool,
     #[serde(default)]
     pub detached_server_daemon: bool,

@@ -12,6 +12,14 @@ pub(crate) type InstalledPluginRegistry =
 pub(crate) struct PluginPaneRecord {
     pub plugin_id: String,
     pub entrypoint: String,
+    pub ownership: Option<ConditionalPluginOwnership>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ConditionalPluginOwnership {
+    pub ownership_nonce: String,
+    pub installation_fingerprint: String,
+    pub terminal_id: crate::terminal::TerminalId,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

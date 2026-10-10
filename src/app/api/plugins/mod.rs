@@ -1,3 +1,4 @@
+pub(crate) mod conditional;
 mod context;
 mod env;
 mod manifest;
@@ -126,6 +127,15 @@ impl App {
                 }
             };
         if removed {
+            for (pane_id, record) in &self.state.plugin_panes {
+                if record.plugin_id == plugin_id {
+                    for workspace in &mut self.state.workspaces {
+                        if let Some(pane) = workspace.pane_state_mut(*pane_id) {
+                            pane.plugin_provenance_unknown = true;
+                        }
+                    }
+                }
+            }
             // Drop plugin_panes records for this plugin (panes keep running).
             self.state
                 .plugin_panes
@@ -3544,6 +3554,7 @@ command = ["sh", "-c", "echo ok"]
             pane_a,
             crate::app::state::PluginPaneRecord {
                 plugin_id: "example.worktree-bootstrap".into(),
+                ownership: None,
                 entrypoint: "main".into(),
             },
         );
@@ -3551,6 +3562,7 @@ command = ["sh", "-c", "echo ok"]
             pane_b,
             crate::app::state::PluginPaneRecord {
                 plugin_id: "example.worktree-bootstrap".into(),
+                ownership: None,
                 entrypoint: "side".into(),
             },
         );
@@ -3558,6 +3570,7 @@ command = ["sh", "-c", "echo ok"]
             pane_other,
             crate::app::state::PluginPaneRecord {
                 plugin_id: "other.plugin".into(),
+                ownership: None,
                 entrypoint: "other".into(),
             },
         );
@@ -3595,6 +3608,7 @@ command = ["sh", "-c", "echo ok"]
             pane_id,
             crate::app::state::PluginPaneRecord {
                 plugin_id: "example.pane".into(),
+                ownership: None,
                 entrypoint: "board".into(),
             },
         );
@@ -3641,6 +3655,7 @@ command = ["sh", "-c", "echo ok"]
             pane_id,
             crate::app::state::PluginPaneRecord {
                 plugin_id: "example.pane".into(),
+                ownership: None,
                 entrypoint: "board".into(),
             },
         );

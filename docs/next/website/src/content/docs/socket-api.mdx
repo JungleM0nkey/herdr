@@ -17,6 +17,15 @@ Most automation should start with the CLI wrappers. Use the raw socket API only 
 
 The layers share the same control surface.
 
+The JSON-only `plugin.pane.state.v1` and `plugin.pane.set_state.v1` methods add
+conditional plugin pane control. They require exact current target IDs, an
+installation fingerprint, a local ownership nonce, and an expiring immutable
+operation ID. Check `ping.capabilities.conditional_plugin_pane_v1` before use;
+never fall back to legacy plugin pane methods. Restored or unlinked panes have
+unknown provenance and require a fresh local tab. Receipts last for one server
+boot, and errors after dispatch remain uncertain until reconciled by the native
+client. The complete wire contract is in `docs/next/api/conditional-plugin-state.md`.
+
 ## Schema
 
 The installed CLI can print the socket protocol schema bundled with that Herdr

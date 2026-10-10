@@ -1759,6 +1759,162 @@
           ],
           "type": "object"
         },
+        "ConditionalOwnedPane": {
+          "additionalProperties": false,
+          "properties": {
+            "pane_id": {
+              "type": "string"
+            },
+            "terminal_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pane_id",
+            "terminal_id"
+          ],
+          "type": "object"
+        },
+        "ConditionalPluginSetStateParams": {
+          "additionalProperties": false,
+          "properties": {
+            "entrypoint": {
+              "type": "string"
+            },
+            "expected_owned_pane": {
+              "anyOf": [
+                {
+                  "$ref": "#/schemas/request/$defs/ConditionalOwnedPane"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "installation_fingerprint": {
+              "type": "string"
+            },
+            "not_after_unix_ms": {
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "open": {
+              "type": "boolean"
+            },
+            "operation_id": {
+              "type": "string"
+            },
+            "ownership_nonce": {
+              "type": "string"
+            },
+            "plugin_id": {
+              "type": "string"
+            },
+            "target": {
+              "$ref": "#/schemas/request/$defs/ConditionalPluginTarget"
+            }
+          },
+          "required": [
+            "operation_id",
+            "target",
+            "plugin_id",
+            "entrypoint",
+            "installation_fingerprint",
+            "ownership_nonce",
+            "open",
+            "not_after_unix_ms"
+          ],
+          "type": "object"
+        },
+        "ConditionalPluginStateParams": {
+          "additionalProperties": false,
+          "properties": {
+            "entrypoint": {
+              "type": "string"
+            },
+            "operation_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ownership_nonce": {
+              "type": "string"
+            },
+            "plugin_id": {
+              "type": "string"
+            },
+            "target": {
+              "$ref": "#/schemas/request/$defs/ConditionalPluginStateTarget"
+            }
+          },
+          "required": [
+            "target",
+            "plugin_id",
+            "entrypoint",
+            "ownership_nonce"
+          ],
+          "type": "object"
+        },
+        "ConditionalPluginStateTarget": {
+          "additionalProperties": false,
+          "properties": {
+            "anchor_pane_id": {
+              "type": "string"
+            },
+            "anchor_terminal_id": {
+              "type": "string"
+            },
+            "server_incarnation": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "tab_id": {
+              "type": "string"
+            },
+            "workspace_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "workspace_id",
+            "tab_id",
+            "anchor_pane_id",
+            "anchor_terminal_id"
+          ],
+          "type": "object"
+        },
+        "ConditionalPluginTarget": {
+          "additionalProperties": false,
+          "properties": {
+            "anchor_pane_id": {
+              "type": "string"
+            },
+            "anchor_terminal_id": {
+              "type": "string"
+            },
+            "server_incarnation": {
+              "type": "string"
+            },
+            "tab_id": {
+              "type": "string"
+            },
+            "workspace_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "server_incarnation",
+            "workspace_id",
+            "tab_id",
+            "anchor_pane_id",
+            "anchor_terminal_id"
+          ],
+          "type": "object"
+        },
         "EmptyParams": {
           "type": "object"
         },
@@ -6312,6 +6468,38 @@
             "params"
           ],
           "type": "object"
+        },
+        {
+          "properties": {
+            "method": {
+              "const": "plugin.pane.state.v1",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/schemas/request/$defs/ConditionalPluginStateParams"
+            }
+          },
+          "required": [
+            "method",
+            "params"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "method": {
+              "const": "plugin.pane.set_state.v1",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/schemas/request/$defs/ConditionalPluginSetStateParams"
+            }
+          },
+          "required": [
+            "method",
+            "params"
+          ],
+          "type": "object"
         }
       ],
       "properties": {
@@ -6783,6 +6971,151 @@
             "no_foreground_client"
           ],
           "type": "string"
+        },
+        "ConditionalOwnedPane": {
+          "additionalProperties": false,
+          "properties": {
+            "pane_id": {
+              "type": "string"
+            },
+            "terminal_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pane_id",
+            "terminal_id"
+          ],
+          "type": "object"
+        },
+        "ConditionalPluginOutcome": {
+          "enum": [
+            "opened",
+            "closed",
+            "unchanged",
+            "uncertain"
+          ],
+          "type": "string"
+        },
+        "ConditionalPluginReceipt": {
+          "properties": {
+            "error_code": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "operation_id": {
+              "type": "string"
+            },
+            "outcome": {
+              "$ref": "#/schemas/success_response/$defs/ConditionalPluginOutcome"
+            },
+            "owned_pane": {
+              "anyOf": [
+                {
+                  "$ref": "#/schemas/success_response/$defs/ConditionalOwnedPane"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "request_digest": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "operation_id",
+            "request_digest",
+            "outcome"
+          ],
+          "type": "object"
+        },
+        "ConditionalPluginState": {
+          "properties": {
+            "api_version": {
+              "format": "uint32",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "conflict": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "installation_fingerprint": {
+              "type": "string"
+            },
+            "live_state_unavailable": {
+              "type": "boolean"
+            },
+            "owned_pane": {
+              "anyOf": [
+                {
+                  "$ref": "#/schemas/success_response/$defs/ConditionalOwnedPane"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "saved_operation": {
+              "anyOf": [
+                {
+                  "$ref": "#/schemas/success_response/$defs/ConditionalPluginReceipt"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "server_now_unix_ms": {
+              "format": "uint64",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "target": {
+              "$ref": "#/schemas/success_response/$defs/ConditionalPluginTarget"
+            }
+          },
+          "required": [
+            "api_version",
+            "server_now_unix_ms",
+            "target",
+            "installation_fingerprint",
+            "live_state_unavailable"
+          ],
+          "type": "object"
+        },
+        "ConditionalPluginTarget": {
+          "additionalProperties": false,
+          "properties": {
+            "anchor_pane_id": {
+              "type": "string"
+            },
+            "anchor_terminal_id": {
+              "type": "string"
+            },
+            "server_incarnation": {
+              "type": "string"
+            },
+            "tab_id": {
+              "type": "string"
+            },
+            "workspace_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "server_incarnation",
+            "workspace_id",
+            "tab_id",
+            "anchor_pane_id",
+            "anchor_terminal_id"
+          ],
+          "type": "object"
         },
         "ConfigReloadStatus": {
           "enum": [
@@ -10360,6 +10693,22 @@
             },
             {
               "properties": {
+                "state": {
+                  "$ref": "#/schemas/success_response/$defs/ConditionalPluginState"
+                },
+                "type": {
+                  "const": "conditional_plugin_state",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "state"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
                 "diagnostics": {
                   "items": {
                     "type": "string"
@@ -10420,6 +10769,10 @@
         },
         "ServerCapabilities": {
           "properties": {
+            "conditional_plugin_pane_v1": {
+              "description": "Supports JSON-only conditional plugin pane state and mutations.",
+              "type": "boolean"
+            },
             "detached_server_daemon": {
               "default": false,
               "type": "boolean"

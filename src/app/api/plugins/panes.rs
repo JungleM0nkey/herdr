@@ -233,7 +233,7 @@ impl App {
         )
     }
 
-    fn plugin_pane_launch_env(
+    pub(super) fn plugin_pane_launch_env(
         &self,
         plugin: &InstalledPluginInfo,
         entrypoint: &str,
@@ -269,7 +269,7 @@ impl App {
         Ok(env)
     }
 
-    fn finish_plugin_pane_open(
+    pub(super) fn finish_plugin_pane_open(
         &mut self,
         id: String,
         ws_idx: usize,
@@ -292,6 +292,7 @@ impl App {
             new_pane.pane_id,
             crate::app::state::PluginPaneRecord {
                 plugin_id: plugin_id.clone(),
+                ownership: None,
                 entrypoint: entrypoint.clone(),
             },
         );
